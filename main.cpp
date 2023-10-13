@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include <list>
 #include <utility>
+#include <random>
+#include <cmath>
 
 using namespace sf;
 
@@ -21,6 +23,7 @@ int board[][12] = {
   {0,0,0,0,0,0,0,0,0,0,0,0},
 };
 
+// Initalize constants
 int headx = 0;
 int heady = 0;
 int snakeLength = 1;
@@ -28,16 +31,52 @@ Direction snakeDirection = DOWN;
 Direction previousDirection = DOWN;
 bool gameOver = false;
 std::list<std::pair<int, int>> snakeHistory;
+std::random_device rd;
+
+// Function to print a 2D array
+void print2DArray(int arr[][12]) {
+  int numRows = 9;
+  int numCols = 12;
+  for (int i = 0; i < numRows; i++) {
+    for (int j = 0; j < numCols; j++) {
+      std::cout << arr[i][j] << '\t'; // Adjust formatting as needed
+    }
+    std::cout << std::endl;
+  }
+}
 
 void assignFood() {
+  std::cout << "ASSIGNFOOD() ENTERED" << std::endl;
+  std::mt19937 gen(rd());  
+  std::uniform_int_distribution<int> dist1(0, 11); 
+  std::uniform_int_distribution<int> dist2(0, 8);
   
+  int x = dist1(gen);
+  int y = dist2(gen);
+
+  // Loop over until random location isn't part of a snake
+  // while (board[x][y] == 1 && (std::abs(headx - x) > 1) && (std::abs(heady - 1) > 2)) {
+  while (board[x][y] == 1
+  && (board[x-1][y] == 1 || board[x+1][y] == 1
+  || board[x][y-1] == 1 || board[x][y+1] == 1)) {
+  
+    x = dist1(gen);
+    y = dist2(gen);
+    
+  }
+
+  std::cout << "FOOD X = " << x << std::endl;
+  std::cout << "FOOD Y = " << y << std::endl;
+  board[y][x] = 2;
+  std::cout << "board[x][y] = " << board[x][y] << std::endl;
 } // assignFood
 
 int main() {
   
   RenderWindow window(VideoMode(600, 455), "Snake");
   Clock clock;
-  Time deltaTime = seconds(1.0f / 5.0f);
+  Time deltaTime = seconds(1.0f / 10.0f);
+  bool needFood = false;
   
   while(window.isOpen()) {
     
@@ -45,10 +84,7 @@ int main() {
     while (elapsed >= deltaTime) {
       
       if (!gameOver) {
-	std::cout << "Previous Direction: ";
-	std::cout << std::to_string(previousDirection);
-	std::cout << "  Snake Direction: ";
-	std::cout << std::to_string(snakeDirection) << std::endl;
+	std::cout << "PREVIOUS HEAD\n";
 	std::cout << "headx = " << headx << std::endl;
 	std::cout << "heady = " << heady << std::endl;
       
@@ -62,15 +98,18 @@ int main() {
 	} else if (snakeDirection == RIGHT) {
 	  heady++;
 	}
-
+	std::cout << "NEXT HEAD\n";
+	std::cout << "headx = " << headx << std::endl;
+	std::cout << "heady = " << heady << std::endl;
+	
 	if (board[headx][heady] == 1) gameOver = true;
-	if (board[headx][heady] == 2) {
-	  snakeLength++;
-	  assignFood();
-	}
 	previousDirection = snakeDirection;
 	snakeHistory.push_back(std::make_pair(headx, heady));
-
+	if (board[headx][heady] == 2) {
+	  snakeLength++;
+	  needFood = true;
+	}
+	
 	// Board has to be "cleared" momentarily before snake is rewritten/food is written
 	// Otherwise blocks wouldn't revert back from the snake value
         for (int i = 0; i < 9; i++) {
@@ -90,15 +129,37 @@ int main() {
 	  int y = location.second;
 	  board[x][y] = 1;
 	} // for
+
+	// if (needFood) {
+	//   std::cout << "\n\nFOOD NEEDED/ASSIGNED\n\n\n";
+	//   assignFood();
+	// }
+
 	
-	// Check for collisions
-	if (headx >= 9 || heady >= 12) {
+	// Check for out of bounds
+	if (headx >= 9 || headx < 0 || heady >= 12 || heady < 0) {
 	  std::cout << "OUT OF BOUNDS" << std::endl;
 	  gameOver = true;
 	}
+
+	needFood = true;
+	for (int i = 0; i < 9; i++) {
+	  for (int j = 0; j < 12; j++) {
+	    if (board[i][j] == 2) {
+	      needFood = false;
+	    }
+	  }
+	}
+
+	if (needFood) {
+	  std::cout << "\n\nFOOD NEEDED/ASSIGNED\n\n\n";
+	  assignFood();
+	  needFood = false;
+	  print2DArray(board);
+	}
 	
 	
-      } else { // if !gameOver
+      } else {
 	std:: cout << "GAME OVER!" << std::endl;
 	return 0;
       } // else gameOver
