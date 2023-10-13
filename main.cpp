@@ -33,7 +33,7 @@ bool gameOver = false;
 std::list<std::pair<int, int>> snakeHistory;
 std::random_device rd;
 
-// Function to print a 2D array
+// Helper/debug function to print a 2D array
 void print2DArray(int arr[][12]) {
   int numRows = 9;
   int numCols = 12;
@@ -45,6 +45,7 @@ void print2DArray(int arr[][12]) {
   }
 }
 
+// Helper function for assigning food to a random location
 void assignFood() {
   std::cout << "ASSIGNFOOD() ENTERED" << std::endl;
   std::mt19937 gen(rd());  
@@ -55,7 +56,6 @@ void assignFood() {
   int y = dist2(gen);
 
   // Loop over until random location isn't part of a snake
-  // while (board[x][y] == 1 && (std::abs(headx - x) > 1) && (std::abs(heady - 1) > 2)) {
   while (board[x][y] == 1
   && (board[x-1][y] == 1 || board[x+1][y] == 1
   || board[x][y-1] == 1 || board[x][y+1] == 1)) {
@@ -71,12 +71,15 @@ void assignFood() {
   std::cout << "board[x][y] = " << board[x][y] << std::endl;
 } // assignFood
 
+
+
 int main() {
   
   RenderWindow window(VideoMode(600, 455), "Snake");
   Clock clock;
-  Time deltaTime = seconds(1.0f / 10.0f);
+  Time deltaTime = seconds(1.0f / 5.0f);
   bool needFood = false;
+
   
   while(window.isOpen()) {
     
@@ -128,13 +131,7 @@ int main() {
 	  int x = location.first;
 	  int y = location.second;
 	  board[x][y] = 1;
-	} // for
-
-	// if (needFood) {
-	//   std::cout << "\n\nFOOD NEEDED/ASSIGNED\n\n\n";
-	//   assignFood();
-	// }
-
+	} 
 	
 	// Check for out of bounds
 	if (headx >= 9 || headx < 0 || heady >= 12 || heady < 0) {
@@ -142,6 +139,7 @@ int main() {
 	  gameOver = true;
 	}
 
+	// Check if there is no food on the board
 	needFood = true;
 	for (int i = 0; i < 9; i++) {
 	  for (int j = 0; j < 12; j++) {
@@ -151,6 +149,7 @@ int main() {
 	  }
 	}
 
+	// Assign the food to a random location if needed
 	if (needFood) {
 	  std::cout << "\n\nFOOD NEEDED/ASSIGNED\n\n\n";
 	  assignFood();
@@ -158,11 +157,11 @@ int main() {
 	  print2DArray(board);
 	}
 	
-	
+	// game over
       } else {
 	std:: cout << "GAME OVER!" << std::endl;
 	return 0;
-      } // else gameOver
+      }
 
       elapsed -= deltaTime;
       clock.restart();
@@ -200,6 +199,7 @@ int main() {
       } // for
 	
     } // for
+      
     window.display();
 
     
@@ -211,23 +211,27 @@ int main() {
 	window.close();
       }
 
-      if (Keyboard::isKeyPressed(Keyboard::Left) ||
-      Keyboard::isKeyPressed(Keyboard::A)) {
+      if ((Keyboard::isKeyPressed(Keyboard::Left) ||
+      Keyboard::isKeyPressed(Keyboard::A)) &&
+      previousDirection != RIGHT) {
 	snakeDirection = LEFT;
       }
 
-      if (Keyboard::isKeyPressed(Keyboard::Right) ||
-      Keyboard::isKeyPressed(Keyboard::D)) {
+      if ((Keyboard::isKeyPressed(Keyboard::Right) ||
+      Keyboard::isKeyPressed(Keyboard::D)) &&
+      previousDirection != LEFT) {
 	snakeDirection = RIGHT;
       }
 
-      if (Keyboard::isKeyPressed(Keyboard::Up) ||
-      Keyboard::isKeyPressed(Keyboard::W)) {
+      if ((Keyboard::isKeyPressed(Keyboard::Up) ||
+      Keyboard::isKeyPressed(Keyboard::W)) &&
+      previousDirection != DOWN) {
 	snakeDirection = UP;
       }
 
-      if (Keyboard::isKeyPressed(Keyboard::Down) ||
-      Keyboard::isKeyPressed(Keyboard::S)) {
+      if ((Keyboard::isKeyPressed(Keyboard::Down) ||
+      Keyboard::isKeyPressed(Keyboard::S)) &&
+      previousDirection != UP) {
 	snakeDirection = DOWN;
       }
     
