@@ -11,10 +11,10 @@ Currently, I have implemented the game successsfully, aside from some misc. vide
 
 As for the AI itself I have a number of options, but I will most likely go with a path-finding algorithm (like BFS/DFS) since it would probably perform better than other models in a controlled environment like this.
 
-## TODO:
--[ ] Implement "AI" mode
--[ ] Show score
--[ ] Add start/end screens
+## Future plans
+- [ ] Implement "AI" mode
+- [ ] Show score
+- [ ] Add start/end screens
 
 ## Credits
 * [SFML](https://www.sfml-dev.org/index.php)
