@@ -24,8 +24,9 @@ int board[][12] = {
 };
 
 // Initalize constants
-int headx = 0;
-int heady = 0;
+bool aiMode = false;
+int headCol = 0;
+int headRow = 0;
 int snakeLength = 1;
 Direction snakeDirection = DOWN;
 Direction previousDirection = DOWN;
@@ -73,11 +74,17 @@ void assignFood() {
 
 
 
-int main() {
+int main(int argc, char*argv[]) {
+  // check for "AI mode"
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--ai") == 0) {
+      aiMode = true;
+    }
+  }
   
   RenderWindow window(VideoMode(600, 455), "Snake");
   Clock clock;
-  Time deltaTime = seconds(1.0f / 5.0f);
+  Time deltaTime = seconds(1.0f / 10.0f);
   bool needFood = false;
 
   
@@ -88,27 +95,27 @@ int main() {
       
       if (!gameOver) {
 	std::cout << "PREVIOUS HEAD\n";
-	std::cout << "headx = " << headx << std::endl;
-	std::cout << "heady = " << heady << std::endl;
+	std::cout << "headCol = " << headCol << std::endl;
+	std::cout << "headRow = " << headRow << std::endl;
       
 	// Update board array based on direction
 	if (snakeDirection == UP) {
-	  headx--;
+	  headCol--;
 	} else if (snakeDirection == DOWN) {
-	  headx++;
+	  headCol++;
 	} else if (snakeDirection == LEFT) {
-	  heady--;
+	  headRow--;
 	} else if (snakeDirection == RIGHT) {
-	  heady++;
+	  headRow++;
 	}
 	std::cout << "NEXT HEAD\n";
-	std::cout << "headx = " << headx << std::endl;
-	std::cout << "heady = " << heady << std::endl;
+	std::cout << "headCol = " << headCol << std::endl;
+	std::cout << "headRow = " << headRow << std::endl;
 	
-	if (board[headx][heady] == 1) gameOver = true;
+	if (board[headCol][headRow] == 1) gameOver = true;
 	previousDirection = snakeDirection;
-	snakeHistory.push_back(std::make_pair(headx, heady));
-	if (board[headx][heady] == 2) {
+	snakeHistory.push_back(std::make_pair(headCol, headRow));
+	if (board[headCol][headRow] == 2) {
 	  snakeLength++;
 	  needFood = true;
 	}
@@ -134,7 +141,7 @@ int main() {
 	} 
 	
 	// Check for out of bounds
-	if (headx >= 9 || headx < 0 || heady >= 12 || heady < 0) {
+	if (headCol >= 9 || headCol < 0 || headRow >= 12 || headRow < 0) {
 	  std::cout << "OUT OF BOUNDS" << std::endl;
 	  gameOver = true;
 	}
@@ -213,25 +220,25 @@ int main() {
 
       if ((Keyboard::isKeyPressed(Keyboard::Left) ||
       Keyboard::isKeyPressed(Keyboard::A)) &&
-      previousDirection != RIGHT) {
+      previousDirection != RIGHT && !aiMode) {
 	snakeDirection = LEFT;
       }
 
       if ((Keyboard::isKeyPressed(Keyboard::Right) ||
       Keyboard::isKeyPressed(Keyboard::D)) &&
-      previousDirection != LEFT) {
+      previousDirection != LEFT && !aiMode) {
 	snakeDirection = RIGHT;
       }
 
       if ((Keyboard::isKeyPressed(Keyboard::Up) ||
       Keyboard::isKeyPressed(Keyboard::W)) &&
-      previousDirection != DOWN) {
+      previousDirection != DOWN && !aiMode) {
 	snakeDirection = UP;
       }
 
       if ((Keyboard::isKeyPressed(Keyboard::Down) ||
       Keyboard::isKeyPressed(Keyboard::S)) &&
-      previousDirection != UP) {
+      previousDirection != UP && !aiMode) {
 	snakeDirection = DOWN;
       }
     
