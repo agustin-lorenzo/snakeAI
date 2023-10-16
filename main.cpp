@@ -1,9 +1,11 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <list>
 #include <utility>
 #include <random>
 #include <cmath>
+
 
 using namespace sf;
 
@@ -25,8 +27,8 @@ int board[][12] = {
 
 // Initalize constants
 bool aiMode = false;
-int headCol = 0;
 int headRow = 0;
+int headCol = 0;
 int snakeLength = 1;
 Direction snakeDirection = DOWN;
 Direction previousDirection = DOWN;
@@ -72,6 +74,13 @@ void assignFood() {
   std::cout << "board[x][y] = " << board[x][y] << std::endl;
 } // assignFood
 
+// Helper function for calculating the distance between two points on the board.
+double getDistance(int startRow, int startCol, int endRow, int endCol) {
+  int a = endRow - startRow;
+  int b = endCol - startCol;
+  return std::sqrt(a * a + b * b);
+} // getDistance
+
 
 
 int main(int argc, char*argv[]) {
@@ -81,7 +90,11 @@ int main(int argc, char*argv[]) {
       aiMode = true;
     }
   }
-  
+
+  SoundBuffer buffer;
+  if (!buffer.loadFromFile("food.wav")) return 1;
+  Sound sound;
+  sound.setBuffer(buffer);
   RenderWindow window(VideoMode(600, 455), "Snake");
   Clock clock;
   Time deltaTime = seconds(1.0f / 10.0f);
@@ -95,27 +108,36 @@ int main(int argc, char*argv[]) {
       
       if (!gameOver) {
 	std::cout << "PREVIOUS HEAD\n";
-	std::cout << "headCol = " << headCol << std::endl;
 	std::cout << "headRow = " << headRow << std::endl;
+	std::cout << "headCol = " << headCol << std::endl;
       
 	// Update board array based on direction
 	if (snakeDirection == UP) {
-	  headCol--;
-	} else if (snakeDirection == DOWN) {
-	  headCol++;
-	} else if (snakeDirection == LEFT) {
 	  headRow--;
-	} else if (snakeDirection == RIGHT) {
+	} else if (snakeDirection == DOWN) {
 	  headRow++;
+	} else if (snakeDirection == LEFT) {
+	  headCol--;
+	} else if (snakeDirection == RIGHT) {
+	  headCol++;
 	}
 	std::cout << "NEXT HEAD\n";
-	std::cout << "headCol = " << headCol << std::endl;
 	std::cout << "headRow = " << headRow << std::endl;
-	
-	if (board[headCol][headRow] == 1) gameOver = true;
+	std::cout << "headCol = " << headCol << std::endl;
+
+	// Check for out of bounds
+	if (headRow >= 9 || headRow < 0 || headCol >= 12 || headCol < 0) {
+	  std::cout << "OUT OF BOUNDS" << std::endl;
+	  std:: cout << "GAME OVER!" << std::endl;
+	  return 0;
+	}
+
+	// Evaluate based on new snake head location
+	if (board[headRow][headCol] == 1) gameOver = true;
 	previousDirection = snakeDirection;
-	snakeHistory.push_back(std::make_pair(headCol, headRow));
-	if (board[headCol][headRow] == 2) {
+	snakeHistory.push_back(std::make_pair(headRow, headCol));
+	if (board[headRow][headCol] == 2) {
+	  sound.play();
 	  snakeLength++;
 	  needFood = true;
 	}
@@ -139,12 +161,6 @@ int main(int argc, char*argv[]) {
 	  int y = location.second;
 	  board[x][y] = 1;
 	} 
-	
-	// Check for out of bounds
-	if (headCol >= 9 || headCol < 0 || headRow >= 12 || headRow < 0) {
-	  std::cout << "OUT OF BOUNDS" << std::endl;
-	  gameOver = true;
-	}
 
 	// Check if there is no food on the board
 	needFood = true;
@@ -243,6 +259,35 @@ int main(int argc, char*argv[]) {
       }
     
     } // while pollEvent()
+
+    // A* pathfinding algorithm
+    if (aiMode) {
+      int headUpRow = headCol--;
+      int headUpCol = headRow;
+
+      int headDownRow = headCol++;
+      int headDownCol = headRow;
+
+      int headLeftRow = headCol;
+      int headLeftCol = headRow--;
+
+      int headRightRow = headCol;
+      int headRightCol = headRow++;
+
+      int foodRow = -1;
+      int foodCol = -1;
+      for (int i = 0; i < 9; i++) {
+	for (int j = 0; j < 12; j++) {
+	  if (board[i][j] == 2) {
+	    foodRow = i;
+	    foodCol = j;
+	    break;
+	  }
+	}
+      }
+
+      double distFromUp = getDistance(headUpRow, headUpCol, foodRow, foodCol);
+    } // aiMode
       
   } // while window.isOpen()
     
