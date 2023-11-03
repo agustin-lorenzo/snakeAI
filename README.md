@@ -9,7 +9,7 @@ For this project, I had two goals:
 
 Currently, I have implemented the game successsfully, aside from some misc. video-game logistical features (start screen, end screen, etc.). In the near future, I plan to implement an "AI mode" that allows the user to watch the AI play the game instead of interacting with it themselves.
 
-As for the AI itself I have a number of options, but I will most likely go with a path-finding algorithm (like BFS/DFS) since it would probably perform better than other models in a controlled environment like this.
+As for the AI itself I have a number of options, but I will most likely go with a path-finding algorithm (like A*) since it would probably perform better than other models in a controlled environment like this.
 
 ## Future plans
 - [ ] Implement "AI" mode
