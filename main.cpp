@@ -74,12 +74,29 @@ void assignFood() {
   std::cout << "board[x][y] = " << board[x][y] << std::endl;
 } // assignFood
 
+// Helper function for checking if a row and column are out of bounds.
+bool inBounds(int row, int col) {
+  if (row >= 9 || row < 0 || col >= 12 || col < 0) {
+    return false;
+  } else return true;
+}
+
 // Helper function for calculating the distance between two points on the board.
 double getDistance(int startRow, int startCol, int endRow, int endCol) {
+  // account for out of bounds and snake-body options
+  if (!inBounds(startRow, startCol) || board[startRow][startCol] == 1) {
+    return 1000;
+  }
   int a = endRow - startRow;
   int b = endCol - startCol;
   return std::sqrt(a * a + b * b);
 } // getDistance
+
+// Helper function for checking both bounds and part of snake
+bool validMove(int row, int col) {
+  if (!inBounds(row, col) || board[row][col] == 1) return false;
+  return true;
+}
 
 
 
@@ -126,7 +143,7 @@ int main(int argc, char*argv[]) {
 	std::cout << "headCol = " << headCol << std::endl;
 
 	// Check for out of bounds
-	if (headRow >= 9 || headRow < 0 || headCol >= 12 || headCol < 0) {
+	if (!inBounds(headRow, headCol)) {
 	  std::cout << "OUT OF BOUNDS" << std::endl;
 	  std:: cout << "GAME OVER!" << std::endl;
 	  return 0;
@@ -262,19 +279,31 @@ int main(int argc, char*argv[]) {
 
     // A* pathfinding algorithm
     if (aiMode) {
-      int headUpRow = headCol--;
-      int headUpCol = headRow;
+      int headUpRow = headRow - 1;
+      int headUpCol = headCol;
 
-      int headDownRow = headCol++;
-      int headDownCol = headRow;
+      int headDownRow = headRow + 1;
+      int headDownCol = headCol;
 
-      int headLeftRow = headCol;
-      int headLeftCol = headRow--;
+      int headLeftRow = headRow;
+      int headLeftCol = headCol - 1;
 
-      int headRightRow = headCol;
-      int headRightCol = headRow++;
+      int headRightRow = headRow;
+      int headRightCol = headCol + 1;
 
-      int foodRow = -1;
+      // int headUpRow = headCol--; //TODO: check if there was any reason for old variables being wrong
+      // int headUpCol = headRow;
+
+      // int headDownRow = headCol++;
+      // int headDownCol = headRow;
+
+      // int headLeftRow = headCol;
+      // int headLeftCol = headRow--;
+
+      // int headRightRow = headCol;
+      // int headRightCol = headRow++;
+
+      int foodRow = -1; // get location of food
       int foodCol = -1;
       for (int i = 0; i < 9; i++) {
 	for (int j = 0; j < 12; j++) {
@@ -285,14 +314,36 @@ int main(int argc, char*argv[]) {
 	  }
 	}
       }
+      
+      // double distFromUp = getDistance(headUpRow, headUpCol, foodRow, foodCol);
+      // double distFromDown = getDistance(headDownRow, headDownCol, foodRow, foodCol);
+      // double distFromLeft = getDistance(headLeftRow, headLeftCol, foodRow, foodCol);
+      // double distFromRight = getDistance(headRightRow, headRightCol, foodRow, foodCol);
+
+
+      snakeDirection = previousDirection;
 
       double distFromUp = getDistance(headUpRow, headUpCol, foodRow, foodCol);
+      std::cout << "distance from up = " << distFromUp << std::endl;
+      if (validMove(headUpRow, headUpCol)) {
+	snakeDirection = UP;
+      }
       double distFromDown = getDistance(headDownRow, headDownCol, foodRow, foodCol);
+      if ((distFromDown < distFromUp) && validMove(headDownRow, headDownCol)) {
+	snakeDirection = DOWN;
+      }
+      std::cout << "distance from down = " << distFromDown << std::endl;
       double distFromLeft = getDistance(headLeftRow, headLeftCol, foodRow, foodCol);
+      if ((distFromLeft < distFromDown) && (distFromLeft < distFromUp) && validMove(headLeftRow, headLeftCol)) {
+	snakeDirection = LEFT;
+      }
+      std::cout << "distance from left = " << distFromLeft << std::endl;
       double distFromRight = getDistance(headRightRow, headRightCol, foodRow, foodCol);
-
-      
-      
+      if ((distFromRight < distFromLeft) && (distFromRight < distFromDown) && (distFromRight < distFromUp) && validMove(headRightRow, headRightCol)) {
+	snakeDirection = RIGHT;
+      }
+      std::cout << "distance from right = " << distFromRight << std::endl;
+      std::cout << "SNAKE DIRECTION = " << snakeDirection << std::endl;
        
     } // aiMode
       
