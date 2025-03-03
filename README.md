@@ -1,20 +1,21 @@
 # snakeAI
-Implementing snake from scratch in C++, and then training an AI to play it.
-![Screenshot of the game](/photos/screenshot.png)
+Implementing snake from scratch in C++, and then creating an AI to play it.
+![Screenshot of the game](/photos/snake.gif)
 ## About
 For this project, I had two goals:
 
 1. Familiarize myself further with C++, and get more comfortable with programming in the language
-2. Train/implement an AI algorithm in an environment that I created from scratch
+2. Implement an AI algorithm in an environment that I created from scratch
 
-Currently, I have implemented the game successsfully, aside from some misc. video-game logistical features (start screen, end screen, etc.). In the near future, I plan to implement an "AI mode" that allows the user to watch the AI play the game instead of interacting with it themselves.
+Currently, I have implemented the game successsfully, aside from some misc. video-game logistical features (start screen, end screen, etc.). I've also implemented an "AI mode" lets the user watch an AI play the game itself. This can be accessed with the `--ai` flag.
 
-As for the AI itself I have a number of options, but I will most likely go with a path-finding algorithm (like A*) since it would probably perform better than other models in a controlled environment like this.
+In the future I plan to try other approaches to the "AI mode" like training a neural network, or using other pathfinding algorithm.
 
 ## Future plans
-- [ ] Implement "AI" mode
+- [x] Implement "AI mode"
 - [ ] Show score
 - [ ] Add start/end screens
+- [ ] Implement other AI approaches
 
 ## Credits
 * [SFML](https://www.sfml-dev.org/index.php)
