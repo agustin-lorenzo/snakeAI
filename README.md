@@ -1,5 +1,6 @@
 # snakeAI
 Implementing snake from scratch in C++, and then creating an AI to play it.
+
 ![Screenshot of the game](/photos/snake.gif)
 ## About
 For this project, I had two goals:
